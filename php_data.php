@@ -3,6 +3,7 @@ ob_start();
 error_reporting(0);
 // connection
 $db_conx = mysqli_connect("localhost", "root", "", "db");
+$dbh = mysqli_connect("localhost", "root", "", "healthcare");
 // Evaluate the connection
 if (mysqli_connect_errno()) {
     echo mysqli_connect_error("Our database server is down at the moment. :(");
@@ -20,7 +21,15 @@ $h_rates= ' ';
 $himoglobins= ' ';
 $wbcs = ' ';
 //Get lists from db
-$sql = mysqli_query($db_conx, "SELECT  P_ID, L_b_p, H_b_p, s_level, weight, temp, h_rate, himoglobin, wbc FROM  phdata  ");
+$sql = mysqli_query($db_conx, "SELECT  * FROM  phdata;");
+$sql1 = mysqli_query($dbh, "SELECT * from diagnosis where PATIENT_ID='p16';");
+$row1 = mysqli_fetch_array($sql1);
+echo 'pid '.$row1[1];
+
+echo '<br>';
+//$sql = mysqli_query($db_conx, "SELECT  P_ID, L_b_p, H_b_p, s_level, weight, temp, h_rate, himoglobin, wbc FROM  phdata  ");
+
+// if($row = mysql_fetch_array($sql)){
 while($row = mysqli_fetch_array($sql)){
 	$P_ID=$row['P_ID'];
 	$L_b_p = $row['L_b_p'];
@@ -42,8 +51,15 @@ while($row = mysqli_fetch_array($sql)){
 	$himoglobins = $himoglobins. ' " ' .$himoglobin.' ", ';
 	$wbcs = $wbcs. ' " ' .$wbc.' ", ';
 }
+// }elseif ($row = mysql_fetch_array($sql1)) {
+	// $PULSE = $row['PULSE'];
+	
+	// $pulses = 
+// }s
 //$P_IDs = trim($P_IDS , ",");
 $L_b_ps = trim($L_b_ps , ",");
+// echo $L_b_ps;
+// echo 'something';
 $H_b_ps = trim($H_b_ps , ",");
 $s_levels = trim($s_levels , ",");
 $weights = trim($weights , ",");
@@ -56,21 +72,30 @@ $wbcs = trim($wbcs , ",");
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+<link rel="stylesheet" href="graph.css">
+
 <title>graphs</title>
 </head>
 
 <body>
+<div class ="container" >
+	<div class = "row">
+		<div class="col-lg-1 col-centered">
+		<h1>Patient chart</h1>
+		</div>
+	</div>
+</div>
 
-<h1>Patient chart</h1>
 
-<div style="width:50%">
+<div class ="chart1">
 <canvas id="Chart1" ></canvas>
 </div>
 
-<div style="width:50%">
+<div class="chart2">
 <canvas id="Chart2" ></canvas>
-
-<div style="width:50%">
+<div id="div1" style="display: none"><?php echo $row1[1] ?></div>
+<div class="chart3">
 <canvas id="Chart3" ></canvas>
 </div>
     <!-- jQuery cdn -->
@@ -83,11 +108,22 @@ $wbcs = trim($wbcs , ",");
 
       // chart DOM Element
       var ctx1 = document.getElementById("Chart1");
-	  var ctx2 = document.getElementById("Chart2");
-	  var ctx3 = document.getElementById("Chart3");
+	  // var ctx2 = document.getElementById("Chart2");
+	  // var ctx3 = document.getElementById("Chart3");
+	  var x = document.getElementById("div1").innerHTML;
+	  // console.log(typeof x);
+	  var myarr = x.split(",");
+	  var i, j = [];
+      console.log('x: ',myarr[0]);
+      for(i=0; i<myarr.length; i++){
+      	j[i] = Number(myarr[i]);
+      }
+      // var j = Number:(myarr[0]);
+      console.log('type: ',typeof j);
+      console.log(j);
       var data = {
         datasets: [{
-          data: [<?php echo $L_b_ps; ?>],
+          data: j,
 		  backgroundColor: 'transparent',
 		  //backgroundColor: 'rgba(69, 92, 115, 0.5)',
 		  backgroundColor: 'rgba(' + (Math.floor(Math.random() * 256)) + ',' + (Math.floor(Math.random() * 256)) + ',' + (Math.floor(Math.random() * 256)) + ', 0.4)',
